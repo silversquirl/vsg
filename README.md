@@ -68,8 +68,7 @@ to make some:
 
 ### Getting Started
 
-Here, I'll walk you through how to create a new site using vsg from
-scratch.
+Let's go through how to create a new vsg site from scratch.
 
 To start with, create a Git repository to version control your site:
 
