@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # A super minimal static site generator
 # Written by Samadi van Koten
-# Disclaimer: I wrote this in a few hours so don't blame me if it breaks
 
 import sys
 from warnings import warn
@@ -19,15 +18,23 @@ from distutils import dir_util # Weird place for a recursive directory copy...
 from collections import namedtuple
 import cinje # Template engine
 import markdown
+import frontmatter
 
 sys.path.insert(0, '') # Allow importing from the current directory
 import config
 import template # Yes, cinje is just that awesome
 
-Page = namedtuple("Page", "title body path")
+class Page:
+    def __init__(self, html, path, meta):
+        self.body = html
+        self.path = path
+        self._meta = meta
 
-# A regex for extracting titles
-TITLE_RE = re.compile(r"^(?:\s*\n)*title\s*:\s*(.*)")
+    def __contains__(self, name):
+        return name in self._meta or name in dir(self)
+
+    def __getattr__(self, name):
+        return self._meta[name] if name in self._meta else None
 
 def read_pages(content="content"):
     # Initialize a markdown translator with extensions such as tables, etc.
@@ -44,23 +51,15 @@ def read_pages(content="content"):
 
             # Read the markdown file
             file_path = os.path.join(path, fn)
-            with open(file_path, "r") as f:
-                md = f.read()
-
-            # Extract the title, if it's specified
-            title = None
-            m = TITLE_RE.match(md)
-            if m:
-                md = md[:m.start()] + md[m.end():]
-                title = m.group(1)
+            page = frontmatter.load(file_path)
 
             # Convert the markdown to HTMl
-            md_html = mdconv.convert(md)
+            html = mdconv.convert(page.content)
             mdconv.reset() # Resetting improves speed, apparently
 
             # Yield a Page object
             page_path = file_path.lstrip(content).rstrip("md") + "html"
-            yield Page(title, md_html, page_path)
+            yield Page(html, page_path, page.metadata)
 
 def build(pages=None, output="output"):
     if not pages:
