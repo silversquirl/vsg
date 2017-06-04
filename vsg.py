@@ -20,15 +20,28 @@ import cinje # Template engine
 import markdown
 import frontmatter
 
-sys.path.insert(0, '') # Allow importing from the current directory
+sys.path.insert(0, "") # Allow importing from the current directory
 import config
 import template # Yes, cinje is just that awesome
 
+default_markdown_translator = markdown.Markdown(extensions=["markdown.extensions.extra"])
+
 class Page:
-    def __init__(self, html, path, meta):
-        self.body = html
-        self.path = path
-        self._meta = meta
+    def __init__(self, fn, prefix="content", children=[], md=default_markdown_translator):
+        if hasattr(fn, "path"): # Handle DirEntry objects
+            fn = fn.path
+
+        page = frontmatter.load(fn)
+        self._meta = page.metadata
+
+        # Convert the markdown to HTML
+        self.body = md.convert(page.content)
+        md.reset() # Resetting improves speed, apparently
+
+        # Create the output path
+        self.path = fn.lstrip(prefix).rstrip("md") + "html"
+
+        self.children = children
 
     def __contains__(self, name):
         return name in self._meta or name in dir(self)
@@ -37,29 +50,37 @@ class Page:
         return self._meta[name] if name in self._meta else None
 
 def read_pages(content="content"):
-    # Initialize a markdown translator with extensions such as tables, etc.
-    mdconv = markdown.Markdown(extensions=[
-        'markdown.extensions.extra',
-        ])
+    content = os.path.normcase(os.path.normpath(content))
 
-    for path, dirs, files in os.walk(content):
-        for fn in files:
-            # Check if it's a markdown file
-            if not fn.lower().endswith(".md"):
-                print(fn + ": Not a markdown file")
+    def read_subdir(d):
+        assert d.is_dir()
+
+        index_path = os.path.join(d.path, "index.md")
+        if not os.path.isfile(index_path):
+            print(d.path + " does not contain index.md; skipping")
+
+        children = []
+        for de in os.scandir(d.path):
+            if de.is_dir():
+                children.extend(read_subdir(de))
                 continue
 
-            # Read the markdown file
-            file_path = os.path.join(path, fn)
-            page = frontmatter.load(file_path)
+            if de.name != "index.md":
+                children.append(Page(de, content))
 
-            # Convert the markdown to HTMl
-            html = mdconv.convert(page.content)
-            mdconv.reset() # Resetting improves speed, apparently
+        yield Page(index_path, content, children)
 
-            # Yield a Page object
-            page_path = file_path.lstrip(content).rstrip("md") + "html"
-            yield Page(html, page_path, page.metadata)
+    for de in os.scandir(content):
+        if de.is_dir():
+            yield from read_subdir(de)
+            continue
+
+        # Check if it's a markdown file
+        if not de.name.endswith(".md"):
+            print(fn + ": Not a markdown file")
+            continue
+
+        yield Page(de, content)
 
 def build(pages=None, output="output"):
     if not pages:
@@ -74,7 +95,7 @@ def build(pages=None, output="output"):
 
     for page in pages:
         # Render the template with the Page object
-        out_html = ''.join(template.render(config, page))
+        out_html = "".join(template.render(config, page))
 
         # Can't use os.path.join because page.path is absolute
         outpath = os.path.normpath(output + page.path)
@@ -88,7 +109,7 @@ def build(pages=None, output="output"):
         with open(outpath, "w") as f:
             f.write(out_html)
 
-if __name__=='__main__':
+if __name__=="__main__":
     config.pages = list(read_pages())
     build()
 

@@ -5,6 +5,9 @@
   :for p in pages
     <a&{href=p.path, class_=("active" if p == current else None)}>
       ${p.title}
+      :if p.children
+        #{''.join(navbar(p.children, current))}
+      :end
     </a>
   :end
 </nav>
