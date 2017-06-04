@@ -8,8 +8,8 @@ vsg is a static site generator I originally wrote for
 [vIRC's website][virc-site]. It is now planned to be used for the next
 version of [Torbay Tech Jam's][ttj] website as well.
 
-Templates are written in [cinje][cinje], content is writtenin
-[Markdown][md]
+Templates are written in [cinje][cinje], content is written in
+[Markdown][md].
 
 ## Why?
 
