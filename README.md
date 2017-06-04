@@ -8,6 +8,9 @@ vsg is a static site generator I originally wrote for
 [vIRC's website][virc-site]. It is now planned to be used for the next
 version of [Torbay Tech Jam's][ttj] website as well.
 
+Templates are written in [cinje][cinje], content is writtenin
+[Markdown][md]
+
 ## Why?
 
 There are loads of static site generators out there. Why write another?
@@ -40,7 +43,7 @@ to make some:
   - Sites have content written in Markdown, stored in files with the
     extension `.md` in the directory `content`
   - Sites have static content such as CSS and images, stored in the
-    `assets` directory. This directory (**not* its contents) is copied
+    `assets` directory. This directory (**not** its contents) is copied
     into `output`, so use paths beginning with `/assets/` to reference
     files stored in it.
   - Markdown files have optional YAML frontmatter of the following form:
@@ -95,4 +98,6 @@ And, last but not least, build the site:
 
 [virc-site]: https://www.virc.org.uk/
 [ttj]: https://torbaytechjam.org.uk/
+[cinje]: https://github.com/marrow/cinje
+[md]: https://daringfireball.net/projects/markdown/basics
 
