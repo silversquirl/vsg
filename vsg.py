@@ -4,11 +4,9 @@
 
 import sys
 from warnings import warn
-if sys.version_info.major < 3 or \
-        (sys.version_info.major == 3 and sys.version_info.minor < 2):
+if sys.version_info < (3, 2):
     raise RuntimeError("This script requires Python 3.2 or greater (3.4.1 minimum recommended)")
-elif sys.version_info.minor < 4 or \
-        (sys.version_info.minor == 4 and sys.version_info.micro < 1):
+elif sys.version_info < (3, 4, 1):
     warn("This script may run incorrectly on versions of Python less than 3.4.1", RuntimeWarning)
 
 
