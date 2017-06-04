@@ -24,6 +24,6 @@ couple of configuration directives (written in Python), a template
 setup, no interactive bootstrap scripts, no arbitrary templating
 restrictions. Just Python and Markdown.
 
-[virc-site]: www.virc.org.uk
-[ttj]: torbaytechjam.org.uk
+[virc-site]: https://www.virc.org.uk/
+[ttj]: https://torbaytechjam.org.uk/
 
