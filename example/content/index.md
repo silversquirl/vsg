@@ -1,5 +1,6 @@
 ---
 title: Home
+order: 0
 ---
 
 # vsg test

@@ -2,7 +2,7 @@
 
 :def navbar pages, current
 <nav>
-  :for p in pages
+  :for p in sorted(pages, key=lambda p: p.order or 0)
     <a&{href=p.path, class_=("active" if p == current else None)}>
       ${p.title}
       :if p.children
