@@ -11,6 +11,11 @@ version of [Torbay Tech Jam's][ttj] website as well.
 Templates are written in [cinje][cinje], content is written in
 [Markdown][md].
 
+[virc-site]: https://www.virc.org.uk/
+[ttj]: https://torbaytechjam.org.uk/
+[cinje]: https://github.com/marrow/cinje
+[md]: https://daringfireball.net/projects/markdown/basics
+
 ## Why?
 
 There are loads of static site generators out there. Why write another?
@@ -38,33 +43,33 @@ as possible.
 While I've designed vsg not to make any unnecessary assumptions, it has
 to make some:
 
-  - Sites have an output directory named `output`
-  - Sites have one main template, stored in `template.py`
-  - Sites have content written in Markdown, stored in files with the
-    extension `.md` in the directory `content`
-  - Sites have static content such as CSS and images, stored in the
-    `assets` directory. This directory (**not** its contents) is copied
-    into `output`, so use paths beginning with `/assets/` to reference
-    files stored in it.
-  - Markdown files have optional YAML frontmatter of the following form:
+- Sites have an output directory
+- Sites have one main template, stored in `template.py`
+- Sites have content written in Markdown, stored in files with the
+  extension `.md` (**not** `.markdown`)
+- Sites have static content such as CSS and images, stored in the
+  "assets" directories. These directories are copied into the output
+  directory, so use paths beginning with their names (eg. `assets/file`)
+  to reference files stored in them.
+- Markdown files have optional YAML frontmatter of the following form:
 
-        ---
-        this: Is YAML
-        you:
-          - can
-          - use
-          - any
-          - YAML
-          - construct
-          - here
-        ---
+      ---
+      this: Is YAML
+      you:
+        - can
+        - use
+        - any
+        - YAML
+        - construct
+        - here
+      ---
 
-        # Page Title
-        This is now **Markdown**!
+      # Page Title
+      This is now **Markdown**!
 
-    Data expressed in frontmatter can be accessed inside the template
-    through the page object. See `example/` for an example or the source
-    code (`vsg.py`) for full details.
+  Data expressed in frontmatter can be accessed inside the template
+  through the page object. See `example/` for an example or the source
+  code (`vsg.py`) for full details.
 
 ### Getting Started
 
@@ -82,8 +87,8 @@ root of your site as `build.py`:
     git submodule add https://github.com/vktec/vsg.git
     ln -s vsg/vsg.py build.py
 
-Now create your template in `template.py`. Feel free to look at
-`example/template.py` for reference.
+Now put configuration in `config.py` and write a template in
+`template.py`. Feel free to look at `example/template.py` for reference.
 
 Create directories for content and static assets:
 
@@ -94,9 +99,4 @@ Now create `content/index.md`, which will become the homepage.
 And, last but not least, build the site:
 
     ./build.py
-
-[virc-site]: https://www.virc.org.uk/
-[ttj]: https://torbaytechjam.org.uk/
-[cinje]: https://github.com/marrow/cinje
-[md]: https://daringfireball.net/projects/markdown/basics
 
