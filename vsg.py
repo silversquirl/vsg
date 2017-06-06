@@ -30,6 +30,12 @@ defaults.extensions = {
         "markdown.extensions.extra",
         "markdown.extensions.codehilite",
         }
+
+defaults.dirs = types.SimpleNamespace()
+defaults.dirs.content = "content"
+defaults.dirs.output = "output"
+defaults.dirs.assets = "assets"
+
 sys.modules["vsg.defaults"] = sys.modules["defaults"] = defaults
 import config
 del sys.modules["vsg.defaults"], sys.modules["defaults"]
@@ -37,7 +43,10 @@ del sys.modules["vsg.defaults"], sys.modules["defaults"]
 markdown_translator = markdown.Markdown(extensions=config.extensions)
 
 class Page:
-    def __init__(self, fn, prefix="content", children=[], md=markdown_translator):
+    def __init__(self,
+            fn, prefix=config.dirs.content,
+            children=[], md=markdown_translator):
+
         if hasattr(fn, "path"): # Handle DirEntry objects
             fn = fn.path
 
@@ -59,7 +68,7 @@ class Page:
     def __getattr__(self, name):
         return self._meta[name] if name in self._meta else None
 
-def read_pages(content="content"):
+def read_pages(content=config.dirs.content):
     content = os.path.normcase(os.path.normpath(content))
 
     def read_subdir(d):
@@ -92,7 +101,10 @@ def read_pages(content="content"):
 
         yield Page(de, content)
 
-def build(pages=None, output="output"):
+def build(pages=None,
+        output=config.dirs.output,
+        assets=config.dirs.assets):
+
     if not pages:
         pages = config.pages
 
@@ -100,7 +112,9 @@ def build(pages=None, output="output"):
     os.makedirs(output, exist_ok=True)
 
     # Recursively copy assets/ into the output directory
-    dir_util.copy_tree("assets", os.path.join(output, "assets"), update=1)
+    dir_util.copy_tree(assets,
+            os.path.join(output, os.path.basename(assets)),
+            update=1)
 
     for page in pages:
         # Render the template with the Page object
