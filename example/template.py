@@ -45,12 +45,6 @@
     <main>
     #{page.body}
     </main>
-
-    <footer>
-      <a href="http://www.vultr.com/?ref=6873807">
-        <img src="/assets/images/vultr-badge.svg" id="vultrimg">
-      </a>
-    </footer>
   </body>
 </html>
 
