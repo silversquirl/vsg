@@ -18,20 +18,26 @@ import cinje # Template engine
 import markdown
 import frontmatter
 
+# User-defined modules
 sys.path.insert(0, "") # Allow importing from the current directory
-import config
+
 import template # Yes, cinje is just that awesome
 
-EXTENSIONS = [
+# Configuration
+import types
+defaults = types.ModuleType("vsg.defaults")
+defaults.extensions = {
         "markdown.extensions.extra",
         "markdown.extensions.codehilite",
-        ]
+        }
+sys.modules["vsg.defaults"] = sys.modules["defaults"] = defaults
+import config
+del sys.modules["vsg.defaults"], sys.modules["defaults"]
 
-
-default_markdown_translator = markdown.Markdown(extensions=EXTENSIONS)
+markdown_translator = markdown.Markdown(extensions=config.extensions)
 
 class Page:
-    def __init__(self, fn, prefix="content", children=[], md=default_markdown_translator):
+    def __init__(self, fn, prefix="content", children=[], md=markdown_translator):
         if hasattr(fn, "path"): # Handle DirEntry objects
             fn = fn.path
 
