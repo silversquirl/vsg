@@ -22,7 +22,13 @@ sys.path.insert(0, "") # Allow importing from the current directory
 import config
 import template # Yes, cinje is just that awesome
 
-default_markdown_translator = markdown.Markdown(extensions=["markdown.extensions.extra"])
+EXTENSIONS = [
+        "markdown.extensions.extra",
+        "markdown.extensions.codehilite",
+        ]
+
+
+default_markdown_translator = markdown.Markdown(extensions=EXTENSIONS)
 
 class Page:
     def __init__(self, fn, prefix="content", children=[], md=default_markdown_translator):
