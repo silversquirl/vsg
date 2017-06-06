@@ -97,8 +97,7 @@ def build(pages=None, output="output"):
         pages = config.pages
 
     # Create the output directory if it doesn't exist
-    if not os.path.exists(output):
-        os.mkdir(output)
+    os.makedirs(output, exist_ok=True)
 
     # Recursively copy assets/ into the output directory
     dir_util.copy_tree("assets", os.path.join(output, "assets"), update=1)
@@ -112,8 +111,7 @@ def build(pages=None, output="output"):
 
         # Create the parent directory if necessary
         outdir = os.path.dirname(outpath)
-        if not os.path.exists(outdir):
-            os.makedirs(outdir)
+        os.makedirs(outdir, exist_ok=True)
 
         # Write the HTML to the output file
         with open(outpath, "w") as f:
