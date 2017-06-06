@@ -1,3 +1,4 @@
+cinje==1.1.0
 Markdown==2.6.8
 python-frontmatter==0.4.2
 PyYAML==3.12
