@@ -34,7 +34,7 @@ defaults.extensions = {
 defaults.dirs = types.SimpleNamespace()
 defaults.dirs.content = "content"
 defaults.dirs.output = "output"
-defaults.dirs.assets = "assets"
+defaults.dirs.assets = {"assets"}
 
 sys.modules["vsg.defaults"] = sys.modules["defaults"] = defaults
 import config
@@ -108,13 +108,17 @@ def build(pages=None,
     if not pages:
         pages = config.pages
 
+    if isinstance(assets, str):
+        assets = {assets}
+
     # Create the output directory if it doesn't exist
     os.makedirs(output, exist_ok=True)
 
-    # Recursively copy assets/ into the output directory
-    dir_util.copy_tree(assets,
-            os.path.join(output, os.path.basename(assets)),
-            update=1)
+    # Recursively copy the assets directories into the output directory
+    for d in assets:
+        dir_util.copy_tree(d,
+                os.path.join(output, os.path.basename(d)),
+                update=1)
 
     for page in pages:
         # Render the template with the Page object
