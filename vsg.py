@@ -29,6 +29,7 @@ defaults = types.ModuleType("vsg.defaults")
 defaults.extensions = {
         "markdown.extensions.extra",
         "markdown.extensions.codehilite",
+        "markdown.extensions.sane_lists",
         }
 
 defaults.dirs = types.SimpleNamespace()
