@@ -102,6 +102,29 @@ def read_pages(content=config.dirs.content):
 
         yield Page(de, content)
 
+def save_pages(pages,
+        output=config.dirs.output,
+        assets=config.dirs.assets):
+
+    for page in pages:
+        # Render the template with the Page object
+        out_html = "".join(template.render(config, page))
+
+        # Can't use os.path.join because page.path is absolute
+        outpath = os.path.normpath(output + page.path)
+
+        # Create the parent directory if necessary
+        outdir = os.path.dirname(outpath)
+        os.makedirs(outdir, exist_ok=True)
+
+        # Write the HTML to the output file
+        with open(outpath, "w") as f:
+            f.write(out_html)
+
+        # Recurse through tree
+        if page.children:
+            save_pages(page.children, output, assets)
+
 def build(pages=None,
         output=config.dirs.output,
         assets=config.dirs.assets):
@@ -121,20 +144,7 @@ def build(pages=None,
                 os.path.join(output, os.path.basename(d)),
                 update=1)
 
-    for page in pages:
-        # Render the template with the Page object
-        out_html = "".join(template.render(config, page))
-
-        # Can't use os.path.join because page.path is absolute
-        outpath = os.path.normpath(output + page.path)
-
-        # Create the parent directory if necessary
-        outdir = os.path.dirname(outpath)
-        os.makedirs(outdir, exist_ok=True)
-
-        # Write the HTML to the output file
-        with open(outpath, "w") as f:
-            f.write(out_html)
+    save_pages(pages, output, assets)
 
 if __name__=="__main__":
     config.pages = list(read_pages())
