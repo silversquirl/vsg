@@ -2,6 +2,23 @@
 # A super minimal static site generator
 # Written by Samadi van Koten
 
+"""
+Usage:
+    ./build.py [build]
+    ./build.py watch
+    ./build.py serve [-p <port>] [-h <host>]
+    ./build.py --help
+    ./build.py --version
+
+Options:
+    --help      Show this screen.
+    --version   Show the version.
+    -p --port   Specify a custom port to listen on [default: 8080].
+    -h --host   Specify a custom host to listen on [default: localhost].
+"""
+
+VERSION="0.2.1"
+
 import sys
 from warnings import warn
 if sys.version_info < (3, 2):
@@ -14,39 +31,18 @@ import re
 import os
 from distutils import dir_util # Weird place for a recursive directory copy...
 from collections import namedtuple
+from docopt import docopt
 import cinje # Template engine
 import markdown
 import frontmatter
 
-# User-defined modules
-sys.path.insert(0, "") # Allow importing from the current directory
-
-import template # Yes, cinje is just that awesome
-
-# Configuration
-import types
-defaults = types.ModuleType("vsg.defaults")
-defaults.extensions = {
-        "markdown.extensions.extra",
-        "markdown.extensions.codehilite",
-        "markdown.extensions.sane_lists",
-        }
-
-defaults.dirs = types.SimpleNamespace()
-defaults.dirs.content = "content"
-defaults.dirs.output = "output"
-defaults.dirs.assets = {"assets"}
-
-sys.modules["vsg.defaults"] = sys.modules["defaults"] = defaults
-import config
-del sys.modules["vsg.defaults"], sys.modules["defaults"]
-
-markdown_translator = markdown.Markdown(extensions=config.extensions)
-
 class Page:
-    def __init__(self,
-            fn, prefix=config.dirs.content,
-            children=[], md=markdown_translator):
+    def __init__(self, fn, prefix=None, children=[], md=None):
+        if not prefix:
+            prefix = config.dirs.content
+
+        if not md:
+            md = markdown_translator
 
         if hasattr(fn, "path"): # Handle DirEntry objects
             fn = fn.path
@@ -69,7 +65,10 @@ class Page:
     def __getattr__(self, name):
         return self._meta[name] if name in self._meta else None
 
-def read_pages(content=config.dirs.content):
+def read_pages(content=None):
+    if not content:
+        content = config.dirs.content
+
     content = os.path.normcase(os.path.normpath(content))
 
     def read_subdir(d):
@@ -102,9 +101,12 @@ def read_pages(content=config.dirs.content):
 
         yield Page(de, content)
 
-def save_pages(pages,
-        output=config.dirs.output,
-        assets=config.dirs.assets):
+def save_pages(pages, output=None, assets=None):
+    if not output:
+        output=config.dirs.output
+
+    if not assets:
+        assets=config.dirs.assets
 
     for page in pages:
         # Render the template with the Page object
@@ -125,12 +127,15 @@ def save_pages(pages,
         if page.children:
             save_pages(page.children, output, assets)
 
-def build(pages=None,
-        output=config.dirs.output,
-        assets=config.dirs.assets):
-
+def build(pages=None, output=None, assets=None):
     if not pages:
         pages = config.pages
+
+    if not output:
+        output=config.dirs.output
+
+    if not assets:
+        assets=config.dirs.assets
 
     if isinstance(assets, str):
         assets = {assets}
@@ -146,7 +151,43 @@ def build(pages=None,
 
     save_pages(pages, output, assets)
 
-if __name__=="__main__":
+def init(opts):
+    global config, template, markdown_translator
+
+    sys.path.insert(0, "") # Allow importing from the current directory
+
+    import template # Yes, cinje is just that awesome
+
+    # Configuration
+    import types
+    defaults = types.ModuleType("vsg.defaults")
+    defaults.extensions = {
+            "markdown.extensions.extra",
+            "markdown.extensions.codehilite",
+            "markdown.extensions.sane_lists",
+            }
+
+    defaults.dirs = types.SimpleNamespace()
+    defaults.dirs.content = "content"
+    defaults.dirs.output = "output"
+    defaults.dirs.assets = {"assets"}
+
+    sys.modules["vsg.defaults"] = sys.modules["defaults"] = defaults
+    import config
+    del sys.modules["vsg.defaults"], sys.modules["defaults"]
+
+    markdown_translator = markdown.Markdown(extensions=config.extensions)
+
+def main(opts):
+    if opts["serve"] or opts["watch"]:
+        sys.stderr.write("Not implemented\n")
+        return 1
+
+    init(opts)
     config.pages = list(read_pages())
     build()
+
+if __name__=="__main__":
+    opts = docopt(__doc__, version="vsg v" + VERSION)
+    exit(main(opts))
 
