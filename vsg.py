@@ -29,6 +29,8 @@ elif sys.version_info < (3, 4, 1):
 
 import re
 import os
+import shutil
+from os import path
 from distutils import dir_util # Weird place for a recursive directory copy...
 from collections import namedtuple
 from docopt import docopt
@@ -69,13 +71,13 @@ def read_pages(content=None):
     if not content:
         content = config.dirs.content
 
-    content = os.path.normcase(os.path.normpath(content))
+    content = path.normcase(path.normpath(content))
 
     def read_subdir(d):
         assert d.is_dir()
 
-        index_path = os.path.join(d.path, "index.md")
-        if not os.path.isfile(index_path):
+        index_path = path.join(d.path, "index.md")
+        if not path.isfile(index_path):
             print(d.path + " does not contain index.md; skipping")
 
         children = []
@@ -109,11 +111,11 @@ def save_pages(pages, output=None):
         # Render the template with the Page object
         out_html = "".join(template.render(config, page))
 
-        # Can't use os.path.join because page.path is absolute
-        outpath = os.path.normpath(output + page.path)
+        # Can't use path.join because page.path is absolute
+        outpath = path.normpath(output + page.path)
 
         # Create the parent directory if necessary
-        outdir = os.path.dirname(outpath)
+        outdir = path.dirname(outpath)
         os.makedirs(outdir, exist_ok=True)
 
         # Write the HTML to the output file
@@ -141,12 +143,14 @@ def build(pages=None, output=None, assets=None):
     os.makedirs(output, exist_ok=True)
 
     # Recursively copy the assets directories into the output directory
-    for d in assets:
-        dir_util.copy_tree(d,
-                os.path.join(output, os.path.basename(d)),
-                update=1)
+    for src in assets:
+        if path.isdir(src):
+            dest = path.join(output, path.basename(src))
+            dir_util.copy_tree(src, dest, update=1)
+        else:
+            shutil.copy(src, output)
 
-    save_pages(pages, output, assets)
+    save_pages(pages, output)
 
 def init(opts):
     global config, template, markdown_translator

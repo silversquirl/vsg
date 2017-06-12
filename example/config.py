@@ -9,3 +9,6 @@ root = "http://localhost:8000/"
 extensions.add("markdown.extensions.toc")
 # You can also disable them, using extensions.remove
 
+# dirs.assets can contain files as well as directories
+dirs.assets.add("test.txt")
+
