@@ -27,12 +27,10 @@ elif sys.version_info < (3, 4, 1):
     warn("This script may run incorrectly on versions of Python less than 3.4.1", RuntimeWarning)
 
 import time
-import re
 import os
 import shutil
 from os import path
 from distutils import dir_util # Weird place for a recursive directory copy...
-from collections import namedtuple
 from docopt import docopt
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
