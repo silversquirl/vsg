@@ -101,12 +101,9 @@ def read_pages(content=None):
 
         yield Page(de, content)
 
-def save_pages(pages, output=None, assets=None):
+def save_pages(pages, output=None):
     if not output:
         output=config.dirs.output
-
-    if not assets:
-        assets=config.dirs.assets
 
     for page in pages:
         # Render the template with the Page object
@@ -125,7 +122,7 @@ def save_pages(pages, output=None, assets=None):
 
         # Recurse through tree
         if page.children:
-            save_pages(page.children, output, assets)
+            save_pages(page.children, output)
 
 def build(pages=None, output=None, assets=None):
     if not pages:
