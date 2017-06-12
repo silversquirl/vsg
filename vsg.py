@@ -26,7 +26,7 @@ if sys.version_info < (3, 2):
 elif sys.version_info < (3, 4, 1):
     warn("This script may run incorrectly on versions of Python less than 3.4.1", RuntimeWarning)
 
-
+import time
 import re
 import os
 import shutil
@@ -34,6 +34,8 @@ from os import path
 from distutils import dir_util # Weird place for a recursive directory copy...
 from collections import namedtuple
 from docopt import docopt
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
 import cinje # Template engine
 import markdown
 import frontmatter
@@ -179,14 +181,42 @@ def init(opts):
 
     markdown_translator = markdown.Markdown(extensions=config.extensions)
 
+class VsgRebuildEventHandler(FileSystemEventHandler):
+    def __init__(self, *args, **kwargs):
+        super(VsgRebuildEventHandler, self).__init__(*args, **kwargs)
+        self.last_build_time = 0 # For debouncing
+
+    def on_any_event(self, evt):
+        # Debounce code (watchdog is a little overzealous in its event reporting)
+        if self.last_build_time < time.time() - 2:
+            self.last_build_time = time.time()
+
+            print("Rebuilding...")
+            config.pages = list(read_pages())
+            build()
+
+def start_watching(root="."):
+    handler = VsgRebuildEventHandler()
+    observer = Observer()
+    observer.schedule(handler, root, recursive=True)
+    observer.start()
+    return observer
+
 def main(opts):
-    if opts["serve"] or opts["watch"]:
+    init(opts)
+    if opts["watch"]:
+        observer = start_watching()
+        try:
+            observer.join()
+        except KeyboardInterrupt:
+            observer.stop()
+            observer.join()
+    elif opts["serve"]:
         sys.stderr.write("Not implemented\n")
         return 1
-
-    init(opts)
-    config.pages = list(read_pages())
-    build()
+    else: # Build
+        config.pages = list(read_pages())
+        build()
 
 if __name__=="__main__":
     opts = docopt(__doc__, version="vsg v" + VERSION)
