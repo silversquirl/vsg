@@ -5,3 +5,4 @@ Pygments==2.2.0
 python-frontmatter==0.4.2
 PyYAML==3.12
 six==1.10.0
+watchdog==0.8.3
