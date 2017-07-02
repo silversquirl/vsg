@@ -87,6 +87,12 @@ root of your site as `build.py`:
     git submodule add https://github.com/vktec/vsg.git
     ln -s vsg/vsg.py build.py
 
+Now, install vsg's dependencies. You _can_ do it with a virtualenv,
+but for the purposes of this README, we'll just do it as a user-level
+PyPi installation:
+
+    pip3 install --user -U -r ./vsg/requirements.txt
+
 Now put configuration in `config.py` and write a template in
 `template.py`. Feel free to look at `example/template.py` for reference.
 
