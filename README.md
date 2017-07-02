@@ -91,10 +91,7 @@ Now, install vsg's dependencies. You _can_ do it with a virtualenv,
 but for the purposes of this README, we'll just do it as a user-level
 PyPi installation:
 
-    pip install --user -U -r ./vsg/requirements.txt
-
-(Make sure to use the Python 3 version of the `pip` utility on your
-system - otherwise vsg **won't** see the installed dependencies!)
+    pip3 install --user -U -r ./vsg/requirements.txt
 
 Now put configuration in `config.py` and write a template in
 `template.py`. Feel free to look at `example/template.py` for reference.
